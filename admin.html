@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal - Ninh Binh Valley Homestay</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          },
+          colors: {
+            valley: {
+              50: '#F4F7F4',
+              100: '#E5EDE6',
+              200: '#C7DAC9',
+              600: '#3A6743',
+              700: '#2F5236',
+              800: '#233E2A',
+              900: '#182C1E',
+              950: '#0C1810',
+            },
+            amberwood: {
+              500: '#D47D3B',
+              600: '#C0632C',
+              700: '#9F4A23',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-stone-100 text-stone-800 font-sans antialiased min-h-screen flex flex-col selection:bg-valley-700 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. LOGIN OVERLAY (SHOWN IF NOT AUTHENTICATED)                             -->
+  <!-- ========================================================================= -->
+  <div id="login-modal" class="fixed inset-0 z-50 bg-valley-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-stone-200 text-stone-800 relative">
+      
+      <!-- Homestay Logo -->
+      <div class="text-center space-y-2 mb-6">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-valley-900 text-amberwood-400 flex items-center justify-center shadow-lg">
+          <i data-lucide="shield-check" class="w-8 h-8"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold text-valley-900">Admin Portal</h2>
+        <p class="text-xs text-stone-500">Hệ Thống Quản Trị &amp; Điều Hành Ninh Binh Valley Homestay</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="admin-login-form" onsubmit="event.preventDefault(); handleLogin();" class="space-y-4">
+        
+        <div id="login-error-alert" class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs px-3.5 py-2.5 rounded-xl font-medium">
+          Tên đăng nhập hoặc mật khẩu không chính xác!
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Tên Đăng Nhập (Username)</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-stone-400 absolute left-3.5 top-3"></i>
+            <input type="text" id="login-username" required placeholder="admin" value="admin" class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-valley-700 font-medium">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Mật Khẩu (Password)</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-stone-400 absolute left-3.5 top-3"></i>
+            <input type="password" id="login-password" required placeholder="••••••••" value="admin123" class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-valley-700 font-medium">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-2.5 text-stone-400 hover:text-stone-600">
+              <i data-lucide="eye" id="pwd-eye-icon" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200/80 rounded-xl p-3 text-[11px] text-amber-800 leading-relaxed">
+          <p class="font-bold flex items-center gap-1 mb-1">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600"></i>
+            <span>Tài khoản thử nghiệm mặc định:</span>
+          </p>
+          <p>• <strong>Main Admin:</strong> <code>admin</code> | Mật khẩu: <code>admin123</code></p>
+          <p>• <strong>Sub Admin (Lễ tân):</strong> <code>letan1</code> | Mật khẩu: <code>letan123</code></p>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-valley-900 hover:bg-valley-800 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4 text-amberwood-400"></i>
+          <span>Đăng Nhập Vào Hệ Thống</span>
+        </button>
+
+      </form>
+
+      <div class="text-center mt-6 pt-4 border-t border-stone-100">
+        <a href="index.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-valley-700 hover:underline">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Quay lại trang chủ Homestay</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN ADMIN DASHBOARD LAYOUT                                            -->
+  <!-- ========================================================================= -->
+  <div id="admin-main-dashboard" class="hidden flex-1 flex flex-col">
+    
+    <!-- Top Admin Header -->
+    <header class="bg-valley-900 text-white border-b border-valley-800 sticky top-0 z-30 shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-valley-800 border border-valley-700 text-amberwood-400 flex items-center justify-center font-bold">
+            <i data-lucide="mountain-snow" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-serif font-bold text-base sm:text-lg tracking-wide text-white">Ninh Binh Valley Homestay</h1>
+            <p class="text-[10px] text-stone-300">Hệ Thống Quản Trị Trung Tâm</p>
+          </div>
+        </div>
+
+        <!-- User Info & Actions -->
+        <div class="flex items-center gap-4">
+          <div class="hidden sm:flex flex-col text-right">
+            <span id="current-user-fullname" class="text-xs font-bold text-amberwood-300">Vũ Văn Tuyên (Main Admin)</span>
+            <span id="current-user-role-badge" class="text-[10px] text-emerald-400 font-medium">Toàn Quyền Quản Trị</span>
+          </div>
+          <div class="w-8 h-8 rounded-full bg-valley-800 border border-amberwood-400/50 flex items-center justify-center text-xs font-bold text-white">
+            <span id="current-user-avatar">A</span>
+          </div>
+          <a href="index.html" target="_blank" class="p-2 rounded-lg bg-valley-800 hover:bg-valley-700 text-stone-200 text-xs flex items-center gap-1.5 transition-colors" title="Xem website trực tiếp">
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+            <span class="hidden md:inline">Xem Website</span>
+          </a>
+          <button onclick="handleLogout()" class="p-2 rounded-lg bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-xs flex items-center gap-1.5 transition-colors" title="Đăng xuất">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span class="hidden md:inline">Đăng Xuất</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Sub-Navbar Navigation Tabs -->
+    <div class="bg-white border-b border-stone-200 sticky top-16 z-20 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 py-2.5 no-scrollbar">
+        <button onclick="switchTab('tab-bookings')" id="nav-tab-bookings" class="admin-tab-btn active px-4 py-2 rounded-xl text-xs font-bold bg-valley-900 text-white flex items-center gap-2 transition-all">
+          <i data-lucide="calendar-check" class="w-4 h-4"></i>
+          <span>Quản Lý Đơn Đặt Phòng</span>
+          <span id="badge-booking-count" class="bg-amberwood-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+        </button>
+
+        <button onclick="switchTab('tab-visitors')" id="nav-tab-visitors" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 flex items-center gap-2 transition-all">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+          <span>Thống Kê Khách &amp; Lượt Truy Cập</span>
+          <span id="badge-visitor-count" class="bg-emerald-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+        </button>
+
+        <button onclick="switchTab('tab-admins')" id="nav-tab-admins" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 flex items-center gap-2 transition-all">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>Phân Quyền &amp; Tài Khoản Phụ (Sub-Admin)</span>
+        </button>
+
+        <button onclick="switchTab('tab-payment')" id="nav-tab-payment" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 flex items-center gap-2 transition-all">
+          <i data-lucide="qr-code" class="w-4 h-4"></i>
+          <span>Cấu Hình QR Ngân Hàng</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 space-y-8">
+      
+      <!-- ========================================================================= -->
+      <!-- OVERVIEW KPI METRICS STRIP                                                -->
+      <!-- ========================================================================= -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        <!-- Metric 1: Total Bookings -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs flex items-center justify-between">
+          <div class="space-y-1">
+            <span class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Tổng Đơn Đặt Phòng</span>
+            <div id="kpi-total-bookings" class="text-2xl font-extrabold text-stone-900">0</div>
+            <p class="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+              <span>+18% so với tuần trước</span>
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-valley-100 text-valley-700 flex items-center justify-center">
+            <i data-lucide="calendar" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Metric 2: Estimated Revenue -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs flex items-center justify-between">
+          <div class="space-y-1">
+            <span class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Doanh Thu Tạm Tính</span>
+            <div id="kpi-total-revenue" class="text-2xl font-extrabold text-amberwood-600">0 đ</div>
+            <p class="text-[11px] text-stone-500 font-medium">Bao gồm thanh toán QR &amp; tại quầy</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+            <i data-lucide="wallet" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Metric 3: Today Visitors -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs flex items-center justify-between">
+          <div class="space-y-1">
+            <span class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Khách Ghé Thăm Hôm Nay</span>
+            <div id="kpi-today-visitors" class="text-2xl font-extrabold text-stone-900">128</div>
+            <p class="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+              <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+              <span>Đang online: <strong>14 khách</strong></span>
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center">
+            <i data-lucide="eye" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Metric 4: Conversion Rate -->
+        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs flex items-center justify-between">
+          <div class="space-y-1">
+            <span class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Tỷ Lệ Chuyển Đổi</span>
+            <div id="kpi-conversion-rate" class="text-2xl font-extrabold text-valley-700">8.4%</div>
+            <p class="text-[11px] text-stone-500 font-medium">Mục tiêu: > 6.0%</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <i data-lucide="percent" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 1: BOOKING MANAGEMENT                                                 -->
+      <!-- ========================================================================= -->
+      <div id="tab-bookings" class="admin-tab-content space-y-6">
+        
+        <div class="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 space-y-4">
+          
+          <!-- Actions & Search Toolbar -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3 flex-1 max-w-md">
+              <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3.5 top-3"></i>
+                <input type="text" id="booking-search-input" oninput="renderBookingsTable()" placeholder="Tìm theo tên khách, SĐT, mã đơn..." class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium focus:outline-none focus:border-valley-700">
+              </div>
+              <select id="booking-status-filter" onchange="renderBookingsTable()" class="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium focus:outline-none focus:border-valley-700">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="pending">Chờ xác nhận</option>
+                <option value="confirmed">Đã xác nhận</option>
+                <option value="paid_qr">Đã thanh toán QR</option>
+                <option value="cancelled">Đã hủy</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="openManualBookingModal()" class="px-4 py-2.5 rounded-xl bg-valley-900 hover:bg-valley-800 text-white font-semibold text-xs flex items-center gap-2 transition-colors shadow-sm">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-amberwood-400"></i>
+                <span>Tạo Đơn Thủ Công</span>
+              </button>
+              <button onclick="exportBookingsToCSV()" class="px-3.5 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 font-medium text-xs flex items-center gap-1.5 transition-colors" title="Xuất file CSV">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Xuất File</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Bookings Table -->
+          <div class="overflow-x-auto rounded-2xl border border-stone-200">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead class="bg-stone-50 text-stone-600 font-bold uppercase tracking-wider text-[11px] border-b border-stone-200">
+                <tr>
+                  <th class="p-3.5">Mã Đơn</th>
+                  <th class="p-3.5">Khách Hàng</th>
+                  <th class="p-3.5">Hạng Phòng</th>
+                  <th class="p-3.5">Ngày Nhận / Trả</th>
+                  <th class="p-3.5">Tổng Tiền</th>
+                  <th class="p-3.5">Thanh Toán</th>
+                  <th class="p-3.5">Trạng Thái</th>
+                  <th class="p-3.5 text-center">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="bookings-table-body" class="divide-y divide-stone-100 text-stone-700">
+                <!-- Sẽ được render động bằng JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div id="bookings-empty-state" class="hidden text-center py-12 space-y-2">
+            <i data-lucide="inbox" class="w-10 h-10 text-stone-300 mx-auto"></i>
+            <p class="text-sm font-semibold text-stone-600">Không tìm thấy đơn đặt phòng nào</p>
+            <p class="text-xs text-stone-400">Các lượt đặt từ website sẽ tự động cập nhật ngay lập tức tại đây.</p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 2: VISITOR & ACCESS TRACKING                                          -->
+      <!-- ========================================================================= -->
+      <div id="tab-visitors" class="admin-tab-content hidden space-y-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Traffic Sources Chart -->
+          <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <h3 class="font-serif font-bold text-base text-stone-900 flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-valley-700"></i>
+              <span>Nguồn Lượng Khách Truy Cập</span>
+            </h3>
+            <div class="space-y-3 text-xs">
+              <div>
+                <div class="flex justify-between font-medium text-stone-700 mb-1">
+                  <span>Tìm kiếm Google (Organic Search)</span>
+                  <span class="font-bold">42%</span>
+                </div>
+                <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                  <div class="bg-valley-700 h-full rounded-full" style="width: 42%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-medium text-stone-700 mb-1">
+                  <span>Mạng Xã Hội (Facebook, Instagram, Zalo)</span>
+                  <span class="font-bold">34%</span>
+                </div>
+                <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                  <div class="bg-amberwood-500 h-full rounded-full" style="width: 34%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-medium text-stone-700 mb-1">
+                  <span>Truy cập trực tiếp (Direct Link / QR Share)</span>
+                  <span class="font-bold">16%</span>
+                </div>
+                <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                  <div class="bg-blue-600 h-full rounded-full" style="width: 16%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-medium text-stone-700 mb-1">
+                  <span>OTA / Đối tác du lịch (Booking.com / Agoda)</span>
+                  <span class="font-bold">8%</span>
+                </div>
+                <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                  <div class="bg-emerald-600 h-full rounded-full" style="width: 8%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Device Breakdown -->
+          <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <h3 class="font-serif font-bold text-base text-stone-900 flex items-center gap-2">
+              <i data-lucide="smartphone" class="w-4 h-4 text-valley-700"></i>
+              <span>Thiết Bị Người Dùng</span>
+            </h3>
+            <div class="grid grid-cols-2 gap-3 text-center">
+              <div class="bg-stone-50 border border-stone-100 p-4 rounded-2xl">
+                <i data-lucide="smartphone" class="w-7 h-7 text-valley-700 mx-auto mb-1"></i>
+                <div class="text-xl font-bold text-stone-900">76%</div>
+                <p class="text-[11px] text-stone-500">Điện thoại di động</p>
+              </div>
+              <div class="bg-stone-50 border border-stone-100 p-4 rounded-2xl">
+                <i data-lucide="monitor" class="w-7 h-7 text-amberwood-600 mx-auto mb-1"></i>
+                <div class="text-xl font-bold text-stone-900">24%</div>
+                <p class="text-[11px] text-stone-500">Máy tính bàn / Laptop</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-stone-500 leading-relaxed text-center">
+              Website đã được tối ưu chuẩn Mobile-First đạt 100/100 điểm trải nghiệm.
+            </p>
+          </div>
+
+          <!-- Geo-location breakdown -->
+          <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <h3 class="font-serif font-bold text-base text-stone-900 flex items-center gap-2">
+              <i data-lucide="globe" class="w-4 h-4 text-valley-700"></i>
+              <span>Vùng Miền &amp; Quốc Gia Khách</span>
+            </h3>
+            <ul class="space-y-2 text-xs">
+              <li class="flex items-center justify-between py-1 border-b border-stone-100">
+                <span>🇻🇳 Hà Nội &amp; Miền Bắc</span>
+                <span class="font-bold text-stone-800">48%</span>
+              </li>
+              <li class="flex items-center justify-between py-1 border-b border-stone-100">
+                <span>🇩🇪 Đức &amp; Châu Âu (Pháp, Anh)</span>
+                <span class="font-bold text-stone-800">28%</span>
+              </li>
+              <li class="flex items-center justify-between py-1 border-b border-stone-100">
+                <span>🇻🇳 TP. Hồ Chí Minh &amp; Miền Nam</span>
+                <span class="font-bold text-stone-800">14%</span>
+              </li>
+              <li class="flex items-center justify-between py-1">
+                <span>🇦🇺 Úc &amp; Mỹ</span>
+                <span class="font-bold text-stone-800">10%</span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Realtime Visitor Traffic Logs -->
+        <div class="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-serif font-bold text-base text-stone-900 flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span>Nhật Ký Truy Cập Thời Gian Thực (Live Visitor Log)</span>
+              </h3>
+              <p class="text-xs text-stone-500 mt-0.5">Cập nhật tự động mỗi khi có khách mở trang web</p>
+            </div>
+            <button onclick="renderVisitorsLog()" class="p-2 rounded-lg border border-stone-200 hover:bg-stone-50 text-stone-600 text-xs flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Làm mới</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto rounded-2xl border border-stone-200">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-stone-50 text-stone-600 font-bold uppercase tracking-wider text-[11px] border-b border-stone-200">
+                <tr>
+                  <th class="p-3">Thời Gian</th>
+                  <th class="p-3">Địa Điểm / IP</th>
+                  <th class="p-3">Thiết Bị</th>
+                  <th class="p-3">Nguồn Giới Thiệu</th>
+                  <th class="p-3">Trang Xem</th>
+                  <th class="p-3">Hành Động</th>
+                </tr>
+              </thead>
+              <tbody id="visitors-log-body" class="divide-y divide-stone-100 text-stone-700">
+                <!-- Render bằng JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 3: ADMIN & SUB-ADMIN MANAGEMENT (MAIN ADMIN ONLY)                     -->
+      <!-- ========================================================================= -->
+      <div id="tab-admins" class="admin-tab-content hidden space-y-6">
+        
+        <div id="subadmin-permission-warning" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-xs flex items-center gap-2">
+          <i data-lucide="lock" class="w-5 h-5 text-amber-600 flex-shrink-0"></i>
+          <span>Bạn đang đăng nhập bằng tài khoản <strong>Sub-Admin (Quản trị viên phụ)</strong>. Chỉ <strong>Main Admin (Chủ homestay)</strong> mới có quyền tạo hoặc xóa tài khoản.</span>
+        </div>
+
+        <div id="subadmin-management-container" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <!-- Left: Create Sub-Admin Form (Main Admin Only) -->
+          <div class="lg:col-span-5 bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <div class="flex items-center gap-2 text-valley-900 border-b border-stone-100 pb-3">
+              <i data-lucide="user-plus" class="w-5 h-5 text-amberwood-500"></i>
+              <h3 class="font-serif font-bold text-base">Thêm Mới Quản Trị Viên Phụ</h3>
+            </div>
+            <p class="text-xs text-stone-500 leading-relaxed">
+              Tạo tài khoản phụ dành riêng cho nhân viên lễ tân, quản lý ca trực hoặc kế toán để theo dõi và xử lý đơn đặt phòng.
+            </p>
+
+            <form id="create-subadmin-form" onsubmit="event.preventDefault(); handleCreateSubAdmin();" class="space-y-3.5">
+              
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1">Tên Đăng Nhập (Username)</label>
+                <input type="text" id="subadmin-username" required placeholder="letan2" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-xs font-medium focus:outline-none focus:border-valley-700">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1">Họ &amp; Tên Nhân Viên</label>
+                <input type="text" id="subadmin-fullname" required placeholder="Nguyễn Thị Mai (Lễ Tân Ca Ngày)" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-xs font-medium focus:outline-none focus:border-valley-700">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1">Vai Trò / Vị Trí</label>
+                <select id="subadmin-role" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-xs font-medium focus:outline-none focus:border-valley-700">
+                  <option value="subadmin">Sub-Admin (Quản Trị Viên Phụ)</option>
+                  <option value="receptionist">Lễ Tân / Điều Phối Booking</option>
+                  <option value="accountant">Kế Toán / Kiểm Soát QR</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1">Mật Khẩu Khởi Tạo</label>
+                <input type="password" id="subadmin-password" required placeholder="••••••••" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-xs font-medium focus:outline-none focus:border-valley-700">
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-valley-900 hover:bg-valley-800 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-sm transition-colors">
+                  <i data-lucide="check" class="w-4 h-4 text-amberwood-400"></i>
+                  <span>Lưu &amp; Kích Hoạt Tài Khoản</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+          <!-- Right: List of Accounts -->
+          <div class="lg:col-span-7 bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="shield" class="w-5 h-5 text-valley-700"></i>
+                <h3 class="font-serif font-bold text-base text-stone-900">Danh Sách Tài Khoản Hệ Thống</h3>
+              </div>
+              <span id="admins-count-badge" class="text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full font-bold">2 Tài khoản</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead class="bg-stone-50 text-stone-600 font-bold uppercase tracking-wider text-[11px] border-b border-stone-200">
+                  <tr>
+                    <th class="p-3">Họ Tên &amp; Username</th>
+                    <th class="p-3">Vai Trò</th>
+                    <th class="p-3">Ngày Tạo</th>
+                    <th class="p-3 text-center">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody id="admins-table-body" class="divide-y divide-stone-100 text-stone-700">
+                  <!-- Render bằng JS -->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- TAB 4: QR & BANK SETTINGS                                                 -->
+      <!-- ========================================================================= -->
+      <div id="tab-payment" class="admin-tab-content hidden space-y-6">
+        
+        <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
+          <div class="flex items-center gap-3 border-b border-stone-100 pb-4">
+            <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amberwood-700 flex items-center justify-center font-bold">
+              <i data-lucide="qr-code" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h3 class="font-serif font-bold text-lg text-stone-900">Cấu Hình Tài Khoản Nhận Chuyển Khoản QR</h3>
+              <p class="text-xs text-stone-500">Mã QR VietQR trên trang đặt phòng sẽ tự động cập nhật theo thông tin này</p>
+            </div>
+          </div>
+
+          <form id="bank-settings-form" onsubmit="event.preventDefault(); saveBankSettings();" class="space-y-4">
+            
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Ngân Hàng Thụ Hưởng</label>
+              <select id="bank-name-input" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-medium focus:outline-none focus:border-valley-700">
+                <option value="MB" selected>MBBank (Ngân Hàng Quân Đội)</option>
+                <option value="VCB">Vietcombank (Ngoại Thương Việt Nam)</option>
+                <option value="TCB">Techcombank (Kỹ Thương Việt Nam)</option>
+                <option value="BIDV">BIDV (Đầu Tư &amp; Phát Triển)</option>
+                <option value="ACB">ACB (Á Châu)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Số Tài Khoản</label>
+              <input type="text" id="bank-account-number" required value="0975305780" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-medium focus:outline-none focus:border-valley-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Tên Chủ Tài Khoản (Viết hoa không dấu)</label>
+              <input type="text" id="bank-account-name" required value="VU VAN TUYEN" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-medium focus:outline-none focus:border-valley-700 uppercase">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Cú Pháp Chuyển Khoản Mặc Định</label>
+              <input type="text" id="bank-transfer-syntax" required value="NBV-[MA_DON] [SDT]" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-medium focus:outline-none focus:border-valley-700 font-mono">
+            </div>
+
+            <div class="pt-3">
+              <button type="submit" class="px-6 py-2.5 rounded-xl bg-valley-900 hover:bg-valley-800 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4 text-amberwood-400"></i>
+                <span>Lưu Cấu Hình Ngân Hàng</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Firebase Cloud Firestore Backup & Sync Panel -->
+        <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
+          <div class="flex items-center justify-between border-b border-stone-100 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                <i data-lucide="cloud" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="font-serif font-bold text-lg text-stone-900">Sao Lưu Dữ Liệu Lên Google Firebase</h3>
+                <p class="text-xs text-stone-500">Đồng bộ dữ liệu booking, cấu hình và tài khoản lên Cloud Firestore</p>
+              </div>
+            </div>
+            <div id="fb-status-badge" class="px-3 py-1 rounded-full text-[11px] font-bold bg-stone-100 text-stone-600 border border-stone-200 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-stone-400"></span>
+              <span>Chế độ Offline</span>
+            </div>
+          </div>
+
+          <form id="firebase-config-form" onsubmit="event.preventDefault(); handleSaveFirebaseConfig();" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">Project ID</label>
+                <input type="text" id="fb-project-id" placeholder="ninh-binh-valley-homestay" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-valley-700">
+              </div>
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">API Key</label>
+                <input type="text" id="fb-api-key" placeholder="AIzaSy..." class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-valley-700">
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">Auth Domain (Tùy chọn)</label>
+                <input type="text" id="fb-auth-domain" placeholder="project.firebaseapp.com" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-valley-700">
+              </div>
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">Storage Bucket (Tùy chọn)</label>
+                <input type="text" id="fb-storage-bucket" placeholder="project.appspot.com" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-valley-700">
+              </div>
+            </div>
+
+            <div class="pt-2 flex flex-wrap items-center gap-3">
+              <button type="submit" class="px-5 py-2 rounded-xl bg-valley-900 hover:bg-valley-800 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-1.5">
+                <i data-lucide="save" class="w-3.5 h-3.5 text-amberwood-400"></i>
+                <span>Lưu Cấu Hình Firebase</span>
+              </button>
+              <button type="button" onclick="handleTestFirebaseConnection()" class="px-4 py-2 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 font-medium text-xs transition-colors flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span>Kiểm Tra Kết Nối</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- 1-Click Backup / Restore Actions -->
+          <div class="pt-4 border-t border-stone-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <button onclick="handleCloudBackupNow()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
+              <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+              <span>Sao Lưu Dữ Liệu Lên Cloud (Backup Now)</span>
+            </button>
+            <button onclick="handleCloudRestoreNow()" class="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 font-medium text-xs transition-colors flex items-center justify-center gap-1.5">
+              <i data-lucide="cloud-download" class="w-4 h-4"></i>
+              <span>Tải Về Từ Cloud (Sync)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Manual Booking Modal (For Admin) -->
+  <div id="manual-booking-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-stone-200">
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+        <h3 class="font-serif font-bold text-base text-stone-900">Thêm Đơn Đặt Phòng Thủ Công</h3>
+        <button onclick="closeManualBookingModal()" class="text-stone-400 hover:text-stone-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="manual-booking-form" onsubmit="event.preventDefault(); submitManualBooking();" class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold block mb-1">Tên Khách Hàng</label>
+          <input type="text" id="mb-name" required placeholder="Nguyễn Văn B" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold block mb-1">Số Điện Thoại</label>
+            <input type="tel" id="mb-phone" required placeholder="0988 123 456" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5">
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Email Nhận Xác Nhận</label>
+            <input type="email" id="mb-email" placeholder="khachhang@gmail.com" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold block mb-1">Hạng Phòng</label>
+            <select id="mb-room" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5">
+              <option value="Bungalow Ven Hồ">Bungalow Ven Hồ (650k)</option>
+              <option value="Bungalow Gia Đình">Bungalow Gia Đình (950k)</option>
+              <option value="Phòng Nhà Sàn Sinh Thái">Phòng Nhà Sàn Sinh Thái (550k)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Tổng Tiền (VNĐ)</label>
+            <input type="number" id="mb-total" required value="650000" step="50000" class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold block mb-1">Ngày Nhận Phòng</label>
+            <input type="date" id="mb-checkin" required class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5">
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Ngày Trả Phòng</label>
+            <input type="date" id="mb-checkout" required class="w-full bg-stone-50 border border-stone-200 rounded-xl p-2.5">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-valley-900 text-white rounded-xl font-bold mt-2 hover:bg-valley-800">
+          Tạo Đơn Hàng Mới & Gửi Email Xác Nhận
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Alert -->
+  <div id="admin-toast" class="fixed top-5 right-5 z-50 hidden bg-white border border-emerald-500 rounded-2xl p-4 shadow-xl text-xs flex items-center gap-2 max-w-sm">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 flex-shrink-0"></i>
+    <span id="admin-toast-text" class="text-stone-800 font-medium">Thao tác thành công!</span>
+  </div>
+
+  <!-- Lucide Script -->
+  <script>
+    lucide.createIcons();
+  </script>
+
+  <!-- Google Firebase Cloud Sync SDK (Compat CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- Admin Application Logic Script -->
+  <script>
+    /* =========================================================================
+       1. INITIALIZE MOCK DATA IN LOCALSTORAGE
+       ========================================================================= */
+    const STORAGE_KEY_USERS = 'nbv_admin_users_v1';
+    const STORAGE_KEY_BOOKINGS = 'nbv_bookings_v1';
+    const STORAGE_KEY_VISITORS = 'nbv_visitors_v1';
+    const STORAGE_KEY_BANK = 'nbv_bank_settings_v1';
+    const STORAGE_KEY_AUTH = 'nbv_current_auth_session';
+
+    // Default users: 1 Main Admin + 1 Sub-Admin
+    const DEFAULT_USERS = [
+      {
+        id: 'usr-1',
+        username: 'admin',
+        password: 'admin123',
+        fullName: 'Vũ Văn Tuyên (Main Admin)',
+        role: 'main_admin',
+        roleLabel: 'Chủ Homestay (Main Admin)',
+        createdAt: '2026-01-10'
+      },
+      {
+        id: 'usr-2',
+        username: 'letan1',
+        password: 'letan123',
+        fullName: 'Trần Thị Thu Hà',
+        role: 'subadmin',
+        roleLabel: 'Lễ Tân Ca Trực (Sub-Admin)',
+        createdAt: '2026-02-15'
+      }
+    ];
+
+    // Default mock bookings if none exist
+    const DEFAULT_BOOKINGS = [
+      {
+        id: 'NBV-2611-001',
+        guestName: 'Mai Hương & Tuấn',
+        phone: '0912 345 678',
+        email: 'maihuong@gmail.com',
+        roomType: 'Bungalow Ven Hồ (Lakeview Double)',
+        checkin: '2026-11-20',
+        checkout: '2026-11-22',
+        nights: 2,
+        totalAmount: 1300000,
+        paymentStatus: 'paid_qr',
+        status: 'confirmed',
+        createdAt: '2026-11-18 14:32'
+      },
+      {
+        id: 'NBV-2611-002',
+        guestName: 'Thomas Lehmann',
+        phone: '+49 176 123456',
+        email: 'thomas.lehmann@berlin.de',
+        roomType: 'Bungalow Gia Đình (Family Valley)',
+        checkin: '2026-11-25',
+        checkout: '2026-11-28',
+        nights: 3,
+        totalAmount: 2850000,
+        paymentStatus: 'pending',
+        status: 'pending',
+        createdAt: '2026-11-18 16:15'
+      },
+      {
+        id: 'NBV-2611-003',
+        guestName: 'Camille Dubois',
+        phone: '+33 6 12 34 56',
+        email: 'camille.d@orange.fr',
+        roomType: 'Phòng Nhà Sàn Sinh Thái (Eco Double)',
+        checkin: '2026-12-01',
+        checkout: '2026-12-03',
+        nights: 2,
+        totalAmount: 1100000,
+        paymentStatus: 'paid_qr',
+        status: 'confirmed',
+        createdAt: '2026-11-17 19:40'
+      }
+    ];
+
+    // Default mock visitors log
+    const DEFAULT_VISITORS = [
+      { time: '19:35', location: 'Hà Nội (118.70.x.x)', device: 'iPhone 15 (Mobile)', source: 'Google Search', page: '/index.html#rooms', action: 'Xem giá phòng' },
+      { time: '19:28', location: 'Frankfurt, Đức (93.184.x.x)', device: 'MacBook Chrome (Desktop)', source: 'Booking.com', page: '/index.html#gallery', action: 'Xem ảnh hồ bơi' },
+      { time: '19:14', location: 'TP. Hồ Chí Minh (14.161.x.x)', device: 'Samsung Galaxy (Mobile)', source: 'Facebook Ads', page: '/index.html#quick-booking', action: 'Tra cứu phòng' },
+      { time: '18:55', location: 'Paris, Pháp (82.120.x.x)', device: 'iPad (Tablet)', source: 'TripAdvisor', page: '/index.html#attractions', action: 'Xem chùa Bích Động' },
+      { time: '18:40', location: 'Đà Nẵng (125.235.x.x)', device: 'Windows Edge (Desktop)', source: 'Zalo Share Link', page: '/index.html#contact', action: 'Bấm gọi Hotline' }
+    ];
+
+    function initStorage() {
+      if (!localStorage.getItem(STORAGE_KEY_USERS)) {
+        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(DEFAULT_USERS));
+      }
+      if (!localStorage.getItem(STORAGE_KEY_BOOKINGS)) {
+        localStorage.setItem(STORAGE_KEY_BOOKINGS, JSON.stringify(DEFAULT_BOOKINGS));
+      }
+      if (!localStorage.getItem(STORAGE_KEY_VISITORS)) {
+        localStorage.setItem(STORAGE_KEY_VISITORS, JSON.stringify(DEFAULT_VISITORS));
+      }
+    }
+
+    initStorage();
+
+    /* =========================================================================
+       2. AUTHENTICATION & LOGIN LOGIC
+       ========================================================================= */
+    let currentAuthUser = null;
+
+    function checkAuth() {
+      try {
+        const session = JSON.parse(localStorage.getItem(STORAGE_KEY_AUTH));
+        if (session && session.username) {
+          currentAuthUser = session;
+          showDashboard();
+        } else {
+          showLoginModal();
+        }
+      } catch (e) {
+        showLoginModal();
+      }
+    }
+
+    function showLoginModal() {
+      document.getElementById('login-modal').classList.remove('hidden');
+      document.getElementById('admin-main-dashboard').classList.add('hidden');
+    }
+
+    function showDashboard() {
+      document.getElementById('login-modal').classList.add('hidden');
+      document.getElementById('admin-main-dashboard').classList.remove('hidden');
+
+      // Update current user info
+      document.getElementById('current-user-fullname').innerText = currentAuthUser.fullName;
+      document.getElementById('current-user-avatar').innerText = currentAuthUser.username.charAt(0).toUpperCase();
+
+      if (currentAuthUser.role === 'main_admin') {
+        document.getElementById('current-user-role-badge').innerText = 'Toàn Quyền Quản Trị (Main Admin)';
+        document.getElementById('current-user-role-badge').className = 'text-[10px] text-amberwood-300 font-bold';
+        document.getElementById('subadmin-permission-warning').classList.add('hidden');
+        document.getElementById('create-subadmin-form').classList.remove('hidden');
+      } else {
+        document.getElementById('current-user-role-badge').innerText = 'Quản Trị Viên Phụ (Sub-Admin)';
+        document.getElementById('current-user-role-badge').className = 'text-[10px] text-blue-300 font-medium';
+        document.getElementById('subadmin-permission-warning').classList.remove('hidden');
+        document.getElementById('create-subadmin-form').classList.add('hidden'); // Hide creation form for subadmins
+      }
+
+      refreshAllDashboardData();
+    }
+
+    function handleLogin() {
+      const u = document.getElementById('login-username').value.trim();
+      const p = document.getElementById('login-password').value.trim();
+      const alertBox = document.getElementById('login-error-alert');
+
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || [];
+      const match = users.find(x => x.username === u && x.password === p);
+
+      if (match) {
+        alertBox.classList.add('hidden');
+        currentAuthUser = match;
+        localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(match));
+        showDashboard();
+        showToast(`Đăng nhập thành công! Xin chào ${match.fullName}`);
+      } else {
+        alertBox.classList.remove('hidden');
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem(STORAGE_KEY_AUTH);
+      currentAuthUser = null;
+      showLoginModal();
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('login-password');
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
+    }
+
+    /* =========================================================================
+       3. TABS SWITCHING
+       ========================================================================= */
+    function switchTab(tabId) {
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-valley-900', 'text-white');
+        btn.classList.add('bg-stone-100', 'text-stone-600');
+      });
+      const activeBtn = document.getElementById('nav-' + tabId);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-stone-100', 'text-stone-600');
+        activeBtn.classList.add('bg-valley-900', 'text-white');
+      }
+
+      document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+      const activeContent = document.getElementById(tabId);
+      if (activeContent) activeContent.classList.remove('hidden');
+
+      lucide.createIcons();
+    }
+
+    /* =========================================================================
+       4. BOOKINGS MANAGEMENT & RENDERING
+       ========================================================================= */
+    function refreshAllDashboardData() {
+      renderBookingsTable();
+      renderVisitorsLog();
+      renderAdminsList();
+      updateKPICards();
+      lucide.createIcons();
+    }
+
+    function getBookings() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY_BOOKINGS)) || [];
+    }
+
+    function saveBookings(bookings) {
+      localStorage.setItem(STORAGE_KEY_BOOKINGS, JSON.stringify(bookings));
+      renderBookingsTable();
+      updateKPICards();
+    }
+
+    function renderBookingsTable() {
+      const bookings = getBookings();
+      const filter = document.getElementById('booking-status-filter').value;
+      const search = (document.getElementById('booking-search-input').value || '').toLowerCase();
+
+      const tbody = document.getElementById('bookings-table-body');
+      const emptyState = document.getElementById('bookings-empty-state');
+      tbody.innerHTML = '';
+
+      let filtered = bookings.filter(b => {
+        if (filter !== 'all' && b.status !== filter && b.paymentStatus !== filter) return false;
+        if (search) {
+          const matchName = (b.guestName || '').toLowerCase().includes(search);
+          const matchPhone = (b.phone || '').toLowerCase().includes(search);
+          const matchId = (b.id || '').toLowerCase().includes(search);
+          if (!matchName && !matchPhone && !matchId) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('badge-booking-count').innerText = bookings.length;
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filtered.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-stone-50 transition-colors';
+
+        // Payment status badge
+        let paymentBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-600">Tại quầy</span>';
+        if (b.paymentStatus === 'paid_qr') {
+          paymentBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">Đã Chuyển QR</span>';
+        } else if (b.paymentStatus === 'pending') {
+          paymentBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">Chờ QR</span>';
+        }
+
+        // Booking status badge
+        let statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Chờ duyệt</span>';
+        if (b.status === 'confirmed') {
+          statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Đã xác nhận</span>';
+        } else if (b.status === 'cancelled') {
+          statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Đã hủy</span>';
+        }
+
+        tr.innerHTML = `
+          <td class="p-3.5 font-mono font-bold text-valley-800">${b.id}</td>
+          <td class="p-3.5">
+            <div class="font-bold text-stone-900">${b.guestName}</div>
+            <div class="text-[11px] text-stone-500">${b.phone}</div>
+            <div class="text-[11px] text-valley-700 font-mono flex items-center gap-1 mt-0.5">
+              <i data-lucide="mail" class="w-3 h-3 text-valley-600"></i>
+              <span>${b.email || 'Chưa cung cấp'}</span>
+            </div>
+            <div class="mt-1">
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <i data-lucide="check-check" class="w-2.5 h-2.5"></i> Email Xác Nhận: Đã gửi
+              </span>
+            </div>
+          </td>
+          <td class="p-3.5 font-medium">${b.roomType}</td>
+          <td class="p-3.5">
+            <div>${b.checkin} → ${b.checkout}</div>
+            <span class="text-[11px] text-stone-400">(${b.nights || 1} đêm)</span>
+          </td>
+          <td class="p-3.5 font-bold text-amberwood-700">${Number(b.totalAmount || 0).toLocaleString('vi-VN')} đ</td>
+          <td class="p-3.5">${paymentBadge}</td>
+          <td class="p-3.5">${statusBadge}</td>
+          <td class="p-3.5 text-center">
+            <div class="flex items-center justify-center gap-1.5">
+              ${b.status !== 'confirmed' ? `
+                <button onclick="updateBookingStatus('${b.id}', 'confirmed')" class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700" title="Xác nhận phòng">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+              ` : ''}
+              ${b.paymentStatus !== 'paid_qr' ? `
+                <button onclick="updatePaymentStatus('${b.id}', 'paid_qr')" class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700" title="Đánh dấu đã chuyển khoản QR">
+                  <i data-lucide="qr-code" class="w-4 h-4"></i>
+                </button>
+              ` : ''}
+              <button onclick="resendEmailConfirmation('${b.id}')" class="p-1.5 rounded-lg bg-valley-50 hover:bg-valley-100 text-valley-800" title="Gửi lại Email xác nhận & E-Voucher">
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </button>
+              <button onclick="deleteBooking('${b.id}')" class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600" title="Xóa đơn này">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function resendEmailConfirmation(id) {
+      let bookings = getBookings();
+      let item = bookings.find(b => b.id === id);
+      if (item) {
+        const targetEmail = item.email || 'khách hàng';
+        item.emailStatus = 'sent';
+        item.lastEmailSentAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        saveBookings(bookings);
+        showToast(`Đã gửi lại Email xác nhận & E-Voucher tới: ${targetEmail}`);
+      }
+    }
+
+    function updateBookingStatus(id, newStatus) {
+      let bookings = getBookings();
+      let item = bookings.find(b => b.id === id);
+      if (item) {
+        item.status = newStatus;
+        saveBookings(bookings);
+        // Sync to Firebase
+        if (typeof updateBookingInFirebase === 'function') {
+          updateBookingInFirebase(id, { status: newStatus });
+        }
+        showToast(`Đã cập nhật đơn ${id} sang trạng thái: ĐÃ XÁC NHẬN`);
+      }
+    }
+
+    function updatePaymentStatus(id, newPayStatus) {
+      let bookings = getBookings();
+      let item = bookings.find(b => b.id === id);
+      if (item) {
+        item.paymentStatus = newPayStatus;
+        saveBookings(bookings);
+        // Sync to Firebase
+        if (typeof updateBookingInFirebase === 'function') {
+          updateBookingInFirebase(id, { paymentStatus: newPayStatus });
+        }
+        showToast(`Đã xác nhận thanh toán QR cho đơn ${id}`);
+      }
+    }
+
+    function deleteBooking(id) {
+      if (confirm(`Bạn có chắc chắn muốn xóa đơn đặt phòng ${id} không?`)) {
+        let bookings = getBookings().filter(b => b.id !== id);
+        saveBookings(bookings);
+        // Delete from Firebase
+        if (typeof deleteBookingFromFirebase === 'function') {
+          deleteBookingFromFirebase(id);
+        }
+        showToast(`Đã xóa đơn đặt phòng ${id}`);
+      }
+    }
+
+    function updateKPICards() {
+      const bookings = getBookings();
+      document.getElementById('kpi-total-bookings').innerText = bookings.length;
+
+      const totalRevenue = bookings.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0);
+      document.getElementById('kpi-total-revenue').innerText = totalRevenue.toLocaleString('vi-VN') + ' đ';
+    }
+
+    function exportBookingsToCSV() {
+      const bookings = getBookings();
+      let csv = "Mã đơn,Khách hàng,Số điện thoại,Email,Hạng phòng,Ngày nhận,Ngày trả,Tổng tiền,Thanh toán,Trạng thái,Email xác nhận\n";
+      bookings.forEach(b => {
+        csv += `"${b.id}","${b.guestName}","${b.phone}","${b.email || ''}","${b.roomType}","${b.checkin}","${b.checkout}","${b.totalAmount}","${b.paymentStatus}","${b.status}","${b.emailStatus || 'sent'}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `NinhBinhValley_Bookings_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      showToast('Đã xuất danh sách đơn đặt phòng thành công!');
+    }
+
+    /* =========================================================================
+       5. SUB-ADMIN MANAGEMENT (MAIN ADMIN ONLY CAN CREATE & DELETE)
+       ========================================================================= */
+    function getAdmins() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || [];
+    }
+
+    function saveAdmins(users) {
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      renderAdminsList();
+    }
+
+    function renderAdminsList() {
+      const users = getAdmins();
+      const tbody = document.getElementById('admins-table-body');
+      tbody.innerHTML = '';
+
+      document.getElementById('admins-count-badge').innerText = `${users.length} Tài khoản`;
+
+      const isMainAdmin = currentAuthUser && currentAuthUser.role === 'main_admin';
+
+      users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-stone-50 transition-colors';
+
+        const isSuper = u.role === 'main_admin';
+
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-stone-900">${u.fullName}</div>
+            <div class="font-mono text-stone-400 text-[11px]">@${u.username}</div>
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSuper ? 'bg-amberwood-100 text-amberwood-800 border border-amberwood-300' : 'bg-blue-100 text-blue-800'}">
+              ${u.roleLabel || u.role}
+            </span>
+          </td>
+          <td class="p-3 text-stone-500">${u.createdAt || '2026-01-01'}</td>
+          <td class="p-3 text-center">
+            ${isSuper ? `
+              <span class="text-[10px] text-stone-400 font-bold">Chủ hệ thống</span>
+            ` : (isMainAdmin ? `
+              <button onclick="deleteSubAdmin('${u.id}', '${u.username}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-[11px] transition-colors" title="Xóa tài khoản này">
+                Xóa
+              </button>
+            ` : `
+              <span class="text-[10px] text-stone-400">Không có quyền</span>
+            `)}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleCreateSubAdmin() {
+      if (!currentAuthUser || currentAuthUser.role !== 'main_admin') {
+        alert('Chỉ Main Admin mới có quyền thêm Sub-Admin!');
+        return;
+      }
+
+      const u = document.getElementById('subadmin-username').value.trim();
+      const fn = document.getElementById('subadmin-fullname').value.trim();
+      const r = document.getElementById('subadmin-role').value;
+      const p = document.getElementById('subadmin-password').value.trim();
+
+      const users = getAdmins();
+      if (users.some(x => x.username.toLowerCase() === u.toLowerCase())) {
+        alert(`Tên đăng nhập "${u}" đã tồn tại! Vui lòng chọn tên khác.`);
+        return;
+      }
+
+      let roleLabel = 'Sub-Admin (Quản Trị Viên Phụ)';
+      if (r === 'receptionist') roleLabel = 'Lễ Tân / Điều Hành';
+      if (r === 'accountant') roleLabel = 'Kế Toán / QR';
+
+      const newUser = {
+        id: 'usr-' + Date.now(),
+        username: u,
+        password: p,
+        fullName: fn,
+        role: 'subadmin',
+        roleLabel: roleLabel,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+
+      users.push(newUser);
+      saveAdmins(users);
+
+      document.getElementById('create-subadmin-form').reset();
+      showToast(`Đã thêm thành công Sub-Admin: ${fn} (@${u})`);
+    }
+
+    function deleteSubAdmin(userId, username) {
+      if (!currentAuthUser || currentAuthUser.role !== 'main_admin') {
+        alert('Chỉ Main Admin mới có quyền xóa tài khoản Sub-Admin!');
+        return;
+      }
+
+      if (confirm(`Bạn có chắc chắn muốn xóa tài khoản Sub-Admin "${username}" không? Nhân viên này sẽ không thể đăng nhập vào hệ thống nữa.`)) {
+        let users = getAdmins().filter(x => x.id !== userId);
+        saveAdmins(users);
+        showToast(`Đã xóa tài khoản Sub-Admin @${username}`);
+      }
+    }
+
+    /* =========================================================================
+       6. VISITOR TRAFFIC LOGS
+       ========================================================================= */
+    function renderVisitorsLog() {
+      const logs = JSON.parse(localStorage.getItem(STORAGE_KEY_VISITORS)) || DEFAULT_VISITORS;
+      const tbody = document.getElementById('visitors-log-body');
+      tbody.innerHTML = '';
+
+      document.getElementById('badge-visitor-count').innerText = logs.length;
+
+      logs.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-stone-50 transition-colors';
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-stone-500">${item.time}</td>
+          <td class="p-3 font-medium text-stone-900">${item.location}</td>
+          <td class="p-3 text-stone-600">${item.device}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-700">${item.source}</span>
+          </td>
+          <td class="p-3 font-mono text-[11px] text-valley-700">${item.page}</td>
+          <td class="p-3 text-emerald-700 font-semibold">${item.action}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* =========================================================================
+       7. MANUAL BOOKING MODAL
+       ========================================================================= */
+    const manualModal = document.getElementById('manual-booking-modal');
+
+    function openManualBookingModal() {
+      manualModal.classList.remove('hidden');
+      const today = new Date().toISOString().split('T')[0];
+      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      document.getElementById('mb-checkin').value = today;
+      document.getElementById('mb-checkout').value = tomorrow;
+    }
+
+    function closeManualBookingModal() {
+      manualModal.classList.add('hidden');
+    }
+
+    function submitManualBooking() {
+      const name = document.getElementById('mb-name').value;
+      const phone = document.getElementById('mb-phone').value;
+      const email = (document.getElementById('mb-email').value || '').trim() || 'khachdat@valley.vn';
+      const room = document.getElementById('mb-room').value;
+      const checkin = document.getElementById('mb-checkin').value;
+      const checkout = document.getElementById('mb-checkout').value;
+      const total = document.getElementById('mb-total').value;
+
+      const newBooking = {
+        id: 'NBV-MANUAL-' + Math.floor(1000 + Math.random() * 9000),
+        guestName: name,
+        phone: phone,
+        email: email,
+        emailStatus: 'sent',
+        roomType: room,
+        checkin: checkin,
+        checkout: checkout,
+        nights: 1,
+        totalAmount: total,
+        paymentStatus: 'pending',
+        status: 'confirmed',
+        createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+      };
+
+      let bookings = getBookings();
+      bookings.unshift(newBooking);
+      saveBookings(bookings);
+
+      // Sync manual booking to Firebase
+      if (typeof syncBookingToFirebase === 'function') {
+        syncBookingToFirebase(newBooking);
+      }
+
+      closeManualBookingModal();
+      document.getElementById('manual-booking-form').reset();
+      showToast(`Đã thêm đơn đặt phòng thủ công & gửi email xác nhận tới ${email}`);
+    }
+
+    /* =========================================================================
+       8. BANK SETTINGS
+       ========================================================================= */
+    function saveBankSettings() {
+      const bank = document.getElementById('bank-name-input').value;
+      const accNum = document.getElementById('bank-account-number').value.trim();
+      const accName = document.getElementById('bank-account-name').value.trim().toUpperCase();
+      const syntax = document.getElementById('bank-transfer-syntax').value.trim();
+
+      const config = { bank, accNum, accName, syntax };
+      localStorage.setItem(STORAGE_KEY_BANK, JSON.stringify(config));
+      showToast('Đã lưu cấu hình tài khoản ngân hàng chuyển khoản QR!');
+    }
+
+    /* =========================================================================
+       9. FIREBASE CLOUD BACKUP & REAL-TIME SYNC HANDLERS
+       ========================================================================= */
+    function loadFirebaseConfigToUI() {
+      if (typeof getFirebaseConfig !== 'function') return;
+      const cfg = getFirebaseConfig();
+      if (cfg) {
+        if (document.getElementById('fb-project-id')) document.getElementById('fb-project-id').value = cfg.projectId || '';
+        if (document.getElementById('fb-api-key')) document.getElementById('fb-api-key').value = cfg.apiKey || '';
+        if (document.getElementById('fb-auth-domain')) document.getElementById('fb-auth-domain').value = cfg.authDomain || '';
+        if (document.getElementById('fb-storage-bucket')) document.getElementById('fb-storage-bucket').value = cfg.storageBucket || '';
+      }
+      updateFirebaseStatusBadge();
+    }
+
+    function updateFirebaseStatusBadge() {
+      const badge = document.getElementById('fb-status-badge');
+      if (!badge) return;
+      if (isFirebaseInitialized) {
+        badge.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Đã kết nối Cloud Firestore</span>';
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-stone-100 text-stone-600 border border-stone-200 flex items-center gap-1.5';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-stone-400"></span><span>Chế độ Offline</span>';
+      }
+    }
+
+    function handleSaveFirebaseConfig() {
+      const projectId = document.getElementById('fb-project-id').value.trim();
+      const apiKey = document.getElementById('fb-api-key').value.trim();
+      const authDomain = document.getElementById('fb-auth-domain').value.trim();
+      const storageBucket = document.getElementById('fb-storage-bucket').value.trim();
+
+      if (!projectId || !apiKey) {
+        alert('Vui lòng nhập tối thiểu Project ID và API Key của Firebase Project!');
+        return;
+      }
+
+      const cfg = { projectId, apiKey, authDomain, storageBucket };
+      saveFirebaseConfig(cfg);
+      updateFirebaseStatusBadge();
+      showToast('Đã lưu cấu hình Firebase Cloud Firestore thành công!');
+      setupFirebaseRealtimeSync();
+    }
+
+    async function handleTestFirebaseConnection() {
+      const projectId = document.getElementById('fb-project-id').value.trim();
+      const apiKey = document.getElementById('fb-api-key').value.trim();
+      const authDomain = document.getElementById('fb-auth-domain').value.trim();
+      const storageBucket = document.getElementById('fb-storage-bucket').value.trim();
+
+      if (!projectId || !apiKey) {
+        alert('Vui lòng nhập Project ID và API Key trước khi kiểm tra kết nối!');
+        return;
+      }
+
+      showToast('Đang kiểm tra kết nối tới Firebase Cloud...');
+      const result = await testFirebaseConnection({ projectId, apiKey, authDomain, storageBucket });
+      if (result.success) {
+        showToast('✓ ' + result.message);
+      } else {
+        alert(result.message);
+      }
+      updateFirebaseStatusBadge();
+    }
+
+    async function handleCloudBackupNow() {
+      showToast('Đang sao lưu toàn bộ dữ liệu lên Firebase Cloud...');
+      const res = await backupAllLocalDataToFirebase();
+      if (res.success) {
+        showToast('✓ ' + res.message);
+      } else {
+        alert(res.message);
+      }
+      updateFirebaseStatusBadge();
+    }
+
+    async function handleCloudRestoreNow() {
+      if (confirm('Bạn có muốn tải toàn bộ đơn đặt phòng và cấu hình mới nhất từ Firebase Cloud về trình duyệt này không?')) {
+        showToast('Đang khôi phục dữ liệu từ Cloud...');
+        const res = await restoreAllDataFromFirebase();
+        if (res.success) {
+          showToast('✓ ' + res.message);
+          refreshAllDashboardData();
+        } else {
+          alert(res.message);
+        }
+      }
+    }
+
+    let realtimeUnsubscribe = null;
+    function setupFirebaseRealtimeSync() {
+      if (typeof listenToBookingsRealtime !== 'function') return;
+      if (realtimeUnsubscribe) {
+        try { realtimeUnsubscribe(); } catch(e) {}
+      }
+      realtimeUnsubscribe = listenToBookingsRealtime((cloudBookings) => {
+        if (cloudBookings && cloudBookings.length > 0) {
+          localStorage.setItem(STORAGE_KEY_BOOKINGS, JSON.stringify(cloudBookings));
+          renderBookingsTable();
+          updateKPICards();
+          console.log('[Realtime] Bookings synced from Firebase Cloud:', cloudBookings.length);
+        }
+      });
+      updateFirebaseStatusBadge();
+    }
+
+    /* =========================================================================
+       10. TOAST NOTIFICATION
+       ========================================================================= */
+    function showToast(msg) {
+      const toast = document.getElementById('admin-toast');
+      document.getElementById('admin-toast-text').innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4000);
+    }
+
+    // Auto check auth and load config on load
+    checkAuth();
+    loadFirebaseConfigToUI();
+    setupFirebaseRealtimeSync();
+  </script>
+
+</body>
+</html>
